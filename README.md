@@ -39,7 +39,7 @@
 
 > Openlist 有官方的镜像，本教程只是为了解决 [issues 226](https://github.com/OpenListTeam/OpenList/issues/226) 在 clawcloud 遇到的不断自动 exit 的问题。
 
-> [个人构建的版本](https://hub.docker.com/r/ppken/my-openlist/tags)，不建议使用，请以[官方镜像](https://hub.docker.com/r/openlistteam/openlist/tags)为准。
+> [个人构建的版本](https://hub.docker.com/r/ppken/openlist/tags)，不建议使用，请以[官方镜像](https://hub.docker.com/r/openlistteam/openlist/tags)为准。
 
 以下是根据现有源码编译并推送你自己的 Docker 镜像的步骤：
 
@@ -53,10 +53,10 @@
 1.  执行以下命令来构建你的 Docker 镜像。
 
     - 将 `你的 DockerHub 用户名` 替换为你在 Docker Hub 上的实际用户名。
-    - `my-openlist:latest` 是你为新镜像指定的名称和标签，你可以根据需要自定义。
+    - `openlist:latest` 是你为新镜像指定的名称和标签，你可以根据需要自定义。
 
     ```bash
-    docker build -t 你的 DockerHub 用户名/my-openlist:latest .
+    docker build -t 你的 DockerHub 用户名/openlist:latest .
     ```
 
     **注意：** 命令末尾的 `.` 表示使用当前目录作为构建上下文，请勿遗漏。
@@ -76,7 +76,7 @@
 2.  推送你刚刚在本地构建好的镜像到 Docker Hub。请确保这里的镜像名称和标签与上一步构建时使用的完全一致。
 
     ```bash
-    docker push 你的 DockerHub 用户名/my-openlist:latest
+    docker push 你的 DockerHub 用户名/openlist:latest
     ```
 
 3.  上传完成后，你可以登录 Docker Hub 网站，在你的仓库中查看这个新的镜像。
@@ -85,7 +85,7 @@
 
 1.  回到你的 ClawCloud 应用配置界面。
 2.  在 "Basic" 信息卡片中，找到 "Image" 字段。
-3.  将原来的 `openlistteam/openlist:beta` 修改为你自己的镜像地址：`你的 DockerHub 用户名/my-openlist:latest`。
+3.  将原来的 `openlistteam/openlist:beta` 修改为你自己的镜像地址：`你的 DockerHub 用户名/openlist:latest`。
 4.  保存配置并让 ClawCloud 重新部署你的应用。
 
 ### 第五步：ClawCloud 环境配置参考
@@ -94,7 +94,7 @@
 
 #### 基本配置
 
-- **镜像**：用户名/my-openlist:latest（替换为你的镜像）
+- **镜像**：用户名/openlist:latest（替换为你的镜像）
 - **CPU 限制**：0.2 Core
 - **内存限制**：256 Mi
 
