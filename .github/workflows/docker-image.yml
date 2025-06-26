@@ -30,8 +30,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0 # 获取完整历史以便更好地生成版本信息
 
       # 设置 QEMU 以支持跨平台构建
       - name: Set up QEMU
