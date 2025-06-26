@@ -16,6 +16,8 @@ jobs:
         with:
           ref: dev-compression
           fetch-depth: 0
+          # 使用个人访问令牌进行检出，这样后续的推送操作也会使用此令牌
+          token: ${{ secrets.PAT }}
 
       - name: Setup Git
         run: |
@@ -37,12 +39,25 @@ jobs:
 
       - name: Push changes to dev-compression
         run: |
+          # 使用个人访问令牌推送更改
           git push origin dev-compression
 
       - name: Create beta tag with date
         run: |
           # 创建格式为 beta-YYYYMMDD 的标签
           BETA_TAG="beta-$(date +%Y%m%d)"
-          git tag $BETA_TAG
-          git push origin $BETA_TAG
+
+          # 检查标签是否已存在
+          if git rev-parse "$BETA_TAG" >/dev/null 2>&1; then
+            echo "标签 $BETA_TAG 已存在，删除旧标签"
+            # 删除本地标签
+            git tag -d "$BETA_TAG"
+            # 删除远程标签
+            git push --delete origin "$BETA_TAG" || echo "远程标签可能不存在，继续执行"
+          fi
+
+          # 创建新标签
+          git tag "$BETA_TAG"
+          # 使用个人访问令牌推送标签，这样可以触发其他工作流
+          git push origin "$BETA_TAG"
           echo "Created and pushed tag: $BETA_TAG"
