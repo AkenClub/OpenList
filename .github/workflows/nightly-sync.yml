@@ -1,0 +1,48 @@
+name: Nightly Sync and Beta Tag
+
+on:
+  schedule:
+    # 每天晚上23:30运行 (UTC+8 = 15:30 UTC)
+    - cron: '30 15 * * *'
+  workflow_dispatch: # 允许手动触发
+
+jobs:
+  sync-and-tag:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: dev-compression
+          fetch-depth: 0
+
+      - name: Setup Git
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+
+      - name: Add upstream remote
+        run: |
+          # 假设原始仓库是 OpenListTeam/OpenList，请根据实际情况修改
+          git remote add upstream https://github.com/OpenListTeam/OpenList.git
+
+      - name: Fetch from upstream
+        run: |
+          git fetch upstream main
+
+      - name: Merge upstream changes
+        run: |
+          git merge upstream/main --no-edit
+
+      - name: Push changes to dev-compression
+        run: |
+          git push origin dev-compression
+
+      - name: Create beta tag with date
+        run: |
+          # 创建格式为 beta-YYYYMMDD 的标签
+          BETA_TAG="beta-$(date +%Y%m%d)"
+          git tag $BETA_TAG
+          git push origin $BETA_TAG
+          echo "Created and pushed tag: $BETA_TAG"
