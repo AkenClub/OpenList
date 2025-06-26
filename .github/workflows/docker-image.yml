@@ -7,6 +7,11 @@ on:
       - 'beta-*'
   workflow_dispatch: # 手动触发
 
+# 添加并发控制，避免重复构建
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 env:
   REGISTRY: docker.io
   IMAGE_NAME: ${{ secrets.DOCKER_USERNAME }}/openlist
@@ -25,6 +30,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # 获取完整历史以便更好地生成版本信息
 
       # 设置 QEMU 以支持跨平台构建
       - name: Set up QEMU
@@ -33,6 +40,9 @@ jobs:
       - name: Set up Docker Buildx
         # Buildx 进行多平台构建
         uses: docker/setup-buildx-action@v3
+        with:
+          # 启用 buildkit 以获得更好的构建性能
+          buildkitd-flags: --debug
 
       - name: Login to Docker Hub
         uses: docker/login-action@v3
@@ -94,8 +104,13 @@ jobs:
           platforms: linux/amd64,linux/arm64
           tags: ${{ steps.meta-release.outputs.tags }}
           labels: ${{ steps.meta-release.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          # 优化缓存策略，使用 registry 缓存以提高构建速度
+          cache-from: |
+            type=gha
+            type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache
+          cache-to: |
+            type=gha,mode=max
+            type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache,mode=max
 
       # 构建并推送beta版镜像
       - name: Build and push beta Docker image
@@ -107,5 +122,10 @@ jobs:
           platforms: linux/amd64,linux/arm64
           tags: ${{ steps.meta-beta.outputs.tags }}
           labels: ${{ steps.meta-beta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          # 优化缓存策略，使用 registry 缓存以提高构建速度
+          cache-from: |
+            type=gha
+            type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache-beta
+          cache-to: |
+            type=gha,mode=max
+            type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache-beta,mode=max
