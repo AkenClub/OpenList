@@ -24,6 +24,11 @@ jobs:
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
 
+      - name: Configure merge strategy to ignore upstream workflows
+        run: |
+          git config merge.ours.driver true
+          echo ".github/workflows/** merge=ours" > .gitattributes
+
       - name: Add upstream remote
         run: |
           # 假设原始仓库是 OpenListTeam/OpenList，请根据实际情况修改
